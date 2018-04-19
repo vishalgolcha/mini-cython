@@ -125,7 +125,7 @@ tnode * tree_pruner(tnode* x,int par){
         x->child = tree_pruner(x->child,1);
 
     
-    /* ****** declaration statement pruning ***** 
+    /* ****** declaration statement pruning should work for left multi list as well ***** 
     TYPE -- > VARLIST 
                 |
                 ID , ID ,ID     
@@ -143,7 +143,7 @@ tnode * tree_pruner(tnode* x,int par){
     <constrainedVars Child > -> <constrainedVars Child >
     ******************************************* */
     int bool_id  =get_symb_no("<booleanExpression>");
-    // exclude the note case important 
+    // exclude the not case important 
     if(x->symb_no==bool_id ){
         int cvars =  get_symb_no("<constrainedVars>");
         int sym_not = get_symb_no("NOT");
@@ -187,6 +187,148 @@ tnode * tree_pruner(tnode* x,int par){
         return x->child;
     }
 
+    /************** parameter_list pruning ********* 
+    <parameter_list> ===> <type> ID <remainingList>
+      
+    ************************************************/
+    
+    // there was ! here in x->sibling->symb_no != paralist_id which was wrong check other statements written while tests
+
+    int paralist_id  =get_symb_no("<remainingList>");
+    if(x->symb_no == ast_id && x->sibling!=NULL && x->sibling->symb_no== paralist_id){
+        x->sibling = x->sibling->child;         
+        return x;
+    }
+
+
+    /************** listVar  pruning  for inputParameterList in function********* 
+    /* <var> <listVar> */
+
+    int var_id  =get_symb_no("<var>");
+    int listvar_id = get_symb_no("<listVar>");
+    if(x->symb_no == var_id && x->sibling!=NULL && x->sibling->symb_no== listvar_id){
+        x->sibling = x->sibling->child->child;         
+        return x;
+    }
+      
+    /* 
+    /************** rows  pruning  ********* 
+
+    <rows> ===> <row> <RowLit>
+    <RowLit> ===> SEMICOLON <rows>      
+    */ 
+    int row_id    = get_symb_no("<row>");
+    int rowLit_id = get_symb_no("<RowLit>");
+    if(x->symb_no == row_id && x->sibling!=NULL && x->sibling->symb_no== rowLit_id){
+        x->sibling = x->sibling->child;         
+        return x;
+    }
+
+    /* 
+    /**************  accumulating column elements as a list  ********* 
+    /*  fiddles with <row> ===> NUM <remainingColElements> 
+    */
+    int num_id    = get_symb_no("NUM");
+    int remcol_id = get_symb_no("<remainingColElements>");
+    
+    if(x->symb_no == num_id && x->sibling!=NULL && x->sibling->symb_no== remcol_id){
+        x->sibling = x->sibling->child;         
+        return x;
+    }
+
+    /* 
+    /**************  working on the arithmetic expressions now and pruning them  ********* 
+    /*   
+    */
+    
+    /* 
+    
+    <arithmeticExpression> ===> <arithmeticTerm> <ArithExpFactored>
+    <ArithExpFactored> ===> <operator_lowPrecedence> <arithmeticExpression>
+    <ArithExpFactored> ===> eps
+    <arithmeticTerm> ===> <factor> <ArithTermFactored>
+    <ArithTermFactored> ===> <operator_highPrecedence> <arithmeticTerm>
+    <ArithTermFactored> ===> eps
+    <factor> ===> OP <arithmeticExpression> CL
+    <factor> ===> <var>
+    
+    */    
+
+    int arith_term =  get_symb_no("<arithmeticTerm>");    
+    int arith_id  = get_symb_no("<arithmeticExpression>");
+    int arith_exp_fact = get_symb_no("<ArithExpFactored>");    
+    int op_low = get_symb_no("<operator_lowPrecedence>");
+    int op_hi = get_symb_no("<operator_highPrecedence>");
+    int fact  = get_symb_no("<factor>");
+    int arith_term_fact=get_symb_no("<ArithTermFactored>");       
+    
+    /// base case 1 2 3
+    if(x->symb_no==arith_term && x->sibling!=NULL && x->sibling->symb_no==arith_exp_fact){
+        x->sibling = x->sibling->child;
+        if(x->symb_no==arith_term && x->child!=NULL && x->child->sibling==NULL){
+            x->child->sibling = x->sibling;
+            return x->child;
+        }        
+        return x;
+    }
+    if(x->symb_no== op_low && x->sibling!=NULL && x->sibling->symb_no==arith_exp_fact){
+        x->sibling = x->sibling->child;
+        return x;
+    }
+    if(x->symb_no== op_hi && x->sibling!=NULL && x->sibling->symb_no==arith_exp_fact){
+        x->sibling = x->sibling->child;
+        return x;
+    }
+    // base cases for the factor ones
+    if(x->symb_no==fact && x->sibling!=NULL && x->sibling->symb_no==arith_term_fact){
+        x->sibling = x->sibling->child;
+        return x;
+    }
+    if(x->symb_no== op_low && x->sibling!=NULL && x->sibling->symb_no==arith_term_fact){
+        x->sibling = x->sibling->child;
+        return x;
+    }
+    if(x->symb_no== op_hi && x->sibling!=NULL && x->sibling->symb_no==arith_term_fact){
+        x->sibling = x->sibling->child;
+        return x;
+    }    
+
+    // now let's resolve the arithemticTerm and Arithmetic Expression constructs
+    if(x->symb_no==arith_term && x->child!=NULL && x->child->sibling!=NULL && x->child->sibling->sibling!=NULL){
+        tnode * one , *two,*three;
+        one = x->child->sibling;
+        two = x->child;
+        three = x->child->sibling->sibling;        
+
+        x->child=one;
+        x->child->child = two;
+        x->child->child->sibling = three; 
+        x->child->sibling = x->sibling;
+        return x->child;
+    }
+     
+    if(x->symb_no==arith_id && x->child!=NULL && x->child->sibling!=NULL && x->child->sibling->sibling!=NULL){
+        tnode * one , *two,*three;
+        one = x->child->sibling;
+        two = x->child;
+        three = x->child->sibling->sibling;        
+
+        x->child=one;
+        x->child->child = two;
+        x->child->child->sibling = three; 
+        
+        x->child->sibling = x->sibling;
+        return x->child;        
+    }
+        
+    if(x->symb_no==arith_id && x->child!=NULL && x->child->sibling==NULL){
+        x->child->sibling = x->sibling;
+        return x->child;
+    }
+    if(x->symb_no==arith_term && x->child!=NULL && x->child->sibling==NULL){
+        x->child->sibling = x->sibling;
+        return x->child;
+    }
 
     if(count==0 && x->sibling==NULL){
         if(x->symb_no<39){
@@ -200,6 +342,12 @@ tnode * tree_pruner(tnode* x,int par){
         }
     }
     else if(/* count==1 && */ par ==1 && x->sibling==NULL){
+        if(x->symb_no==row_id){
+            return x; // trying to preserve some structure helpful for the things ahead
+        }
+        if(x->symb_no==get_symb_no("<arithmeticExpression>")){
+            return x;
+        }
         return x->child;
     }
     return x;
@@ -327,7 +475,6 @@ void update_ptree(char* inp, char *outp){
 	init_grammar();
 
 	init_reverse_token_lookup_hash();
-
 	init_ptree_pstack();
 
 	parse();
@@ -385,8 +532,6 @@ void ptraverse(tnode *trv_node){
 		// printf("%s\n",trv_node->child->lexeme);		
 		ptraverse(trv_node->child);	
 	}
-
-	
 	// printf("%d\n",trv_node->symb_no);
 	
 	if(trv_node->symb_no == -42){
@@ -395,7 +540,6 @@ void ptraverse(tnode *trv_node){
 	else{
         printf("%s \n",symb_name[trv_node->symb_no]);
 	}
-
 	if(trv_node->child!=NULL){
 		// printf("in here %s ")
 		tnode * x = trv_node->child->sibling;
