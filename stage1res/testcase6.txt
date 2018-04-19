@@ -1,0 +1,6 @@
+_main[]
+function [string x, int m] = _operationDemoA[string u,string v, int a, int b]
+#This is a sample function definition
+x = u + v;
+m = a + b;
+end

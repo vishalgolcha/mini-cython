@@ -1,0 +1,17 @@
+_main[ ]
+	string g, h;
+	g = "compiler";
+	function [string x] = _visibilityDemo[int a, int b]
+		real c;
+		string m1, m2;
+		m1 = "computer";
+		m2 = "programming";
+		function [string s] = _concat[int k]
+			s = m1+m2;
+		end;
+		x = _concat(z);
+		c = a/b;
+	end;
+	h = g + _visibilityDemo(2,3);
+	print(h);
+end

@@ -1,0 +1,50 @@
+///////////////////////////////////////
+// Author: Vishal Golcha 
+// Id: 2014B5A70717P
+///////////////////////////////////////
+
+<ArithExpFactored> eps MINUS PLUS 
+<ArithTermFactored> eps DIV MUL 
+<MatLit> eps SQO 
+<RowLit> eps SEMICOLON 
+<arithmeticExpression> FUNID ID NUM OP RNUM SQO STR 
+<arithmeticTerm> FUNID ID NUM OP RNUM SQO STR 
+<assignmentStmt_type1> ID 
+<assignmentStmt_type2> SQO 
+<booleanExpression> ID NOT NUM OP RNUM 
+<constrainedVars> ID NUM RNUM 
+<declarationStmt> INT MATRIX REAL STRING 
+<factor> FUNID ID NUM OP RNUM SQO STR 
+<funCallStmt> FUNID 
+<functionDef> FUNCTION 
+<ifStmt> IF 
+<ifStmtFactored> ELSE ENDIF 
+<inputParameterList> FUNID ID NUM RNUM SQO STR 
+<ioStmt> PRINT READ 
+<leftHandSide_listVar> SQO 
+<leftHandSide_singleVar> ID 
+<listVar> eps COMMA 
+<logicalOp> AND OR 
+<mainFunction> MAIN 
+<matrix> SQO 
+<matrixElement> SQO 
+<more_ids> eps COMMA 
+<operator_highPrecedence> DIV MUL 
+<operator_lowPrecedence> MINUS PLUS 
+<otherStmts> eps FUNID ID IF INT MATRIX PRINT READ REAL SQO STRING 
+<parameter_list> INT MATRIX REAL STRING 
+<relationalOp> EQ GE GT LE LT NE 
+<remainingColElements> eps COMMA 
+<remainingList> eps COMMA 
+<rightHandSide_type1> FUNID ID NUM OP RNUM SIZE SQO STR 
+<rightHandSide_type2> FUNID SIZE 
+<row> NUM 
+<rows> NUM 
+<sizeExpression> SIZE 
+<stmt> FUNID ID IF INT MATRIX PRINT READ REAL SQO STRING 
+<stmtExt> eps FUNCTION FUNID ID IF INT MATRIX PRINT READ REAL SQO STRING 
+<stmtOrFunctionDef> FUNCTION FUNID ID IF INT MATRIX PRINT READ REAL SQO STRING 
+<stmtsAndFunctionDefs> FUNCTION FUNID ID IF INT MATRIX PRINT READ REAL SQO STRING 
+<type> INT MATRIX REAL STRING 
+<var> FUNID ID NUM RNUM SQO STR 
+<var_list> ID 

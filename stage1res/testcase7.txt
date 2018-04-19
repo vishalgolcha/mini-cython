@@ -1,0 +1,12 @@
+_main[]
+function [string x] = _visibilityDemo[int a, int b]
+real c;
+string m1, m2;
+m1 = "computer";
+m2 = "programming";
+function [string s] = _concat[int x]
+s = m1+m2;
+end
+x = _concat(k);
+c = a/b;
+end

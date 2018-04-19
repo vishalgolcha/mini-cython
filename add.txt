@@ -1,0 +1,5 @@
+_main[]
+    if ((i<10) .and. (i>11))
+        int a;
+    endif;
+end

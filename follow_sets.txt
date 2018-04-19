@@ -1,0 +1,50 @@
+///////////////////////////////////////
+// Author: Vishal Golcha 
+// Id: 2014B5A70717P
+///////////////////////////////////////
+
+<ArithExpFactored> SEMICOLON 
+<ArithTermFactored> MINUS PLUS SEMICOLON 
+<MatLit> CL COMMA DIV MINUS MUL PLUS SEMICOLON 
+<RowLit> SQC 
+<arithmeticExpression> CL SEMICOLON 
+<arithmeticTerm> CL MINUS PLUS SEMICOLON 
+<assignmentStmt_type1> ELSE END ENDIF FUNCTION FUNID ID IF INT MATRIX PRINT READ REAL SQO STRING 
+<assignmentStmt_type2> ELSE END ENDIF FUNCTION FUNID ID IF INT MATRIX PRINT READ REAL SQO STRING 
+<booleanExpression> CL 
+<constrainedVars> CL EQ GE GT LE LT NE 
+<declarationStmt> ELSE END ENDIF FUNCTION FUNID ID IF INT MATRIX PRINT READ REAL SQO STRING 
+<factor> CL DIV MINUS MUL PLUS SEMICOLON 
+<funCallStmt> CL COMMA DIV MINUS MUL PLUS SEMICOLON 
+<functionDef> END FUNCTION FUNID ID IF INT MATRIX PRINT READ REAL SQO STRING 
+<ifStmt> ELSE END ENDIF FUNCTION FUNID ID IF INT MATRIX PRINT READ REAL SQO STRING 
+<ifStmtFactored> END FUNCTION FUNID ID IF INT MATRIX PRINT READ REAL SQO STRING 
+<inputParameterList> CL 
+<ioStmt> ELSE END ENDIF FUNCTION FUNID ID IF INT MATRIX PRINT READ REAL SQO STRING 
+<leftHandSide_listVar> ASSIGNOP 
+<leftHandSide_singleVar> ASSIGNOP 
+<listVar> CL 
+<logicalOp> OP 
+<mainFunction> 
+<matrix> CL COMMA DIV MINUS MUL PLUS SEMICOLON 
+<matrixElement> CL COMMA DIV MINUS MUL PLUS SEMICOLON 
+<more_ids> SEMICOLON 
+<operator_highPrecedence> FUNID ID NUM OP RNUM SQO STR 
+<operator_lowPrecedence> FUNID ID NUM OP RNUM SQO STR 
+<otherStmts> ELSE ENDIF 
+<parameter_list> SQC 
+<relationalOp> ID NUM RNUM 
+<remainingColElements> SEMICOLON SQC 
+<remainingList> SQC 
+<rightHandSide_type1> SEMICOLON 
+<rightHandSide_type2> SEMICOLON 
+<row> SEMICOLON SQC 
+<rows> SQC 
+<sizeExpression> SEMICOLON 
+<stmt> ELSE END ENDIF FUNCTION FUNID ID IF INT MATRIX PRINT READ REAL SQO STRING 
+<stmtExt> END 
+<stmtOrFunctionDef> END FUNCTION FUNID ID IF INT MATRIX PRINT READ REAL SQO STRING 
+<stmtsAndFunctionDefs> END 
+<type> ID 
+<var> CL COMMA DIV MINUS MUL PLUS SEMICOLON 
+<var_list> SEMICOLON SQC 

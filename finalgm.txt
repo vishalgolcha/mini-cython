@@ -1,0 +1,87 @@
+<mainFunction> ===> MAIN SQO SQC <stmtsAndFunctionDefs> END
+<stmtsAndFunctionDefs> ===> <stmtOrFunctionDef> <stmtExt>
+<stmtExt> ===> <stmtsAndFunctionDefs>
+<stmtExt> ===> eps
+<stmtOrFunctionDef> ===> <stmt>
+<stmtOrFunctionDef> ===> <functionDef>
+<stmt> ===> <declarationStmt>
+<stmt> ===> <assignmentStmt_type1>
+<stmt> ===> <assignmentStmt_type2>
+<stmt> ===> <ifStmt>
+<stmt> ===> <ioStmt>
+<stmt> ===> <funCallStmt> SEMICOLON
+<functionDef> ===> FUNCTION SQO <parameter_list> SQC ASSIGNOP FUNID SQO <parameter_list> SQC <stmtsAndFunctionDefs> END SEMICOLON
+<parameter_list> ===> <type> ID <remainingList>
+<type> ===> INT
+<type> ===> REAL
+<type> ===> STRING
+<type> ===> MATRIX
+<remainingList> ===> COMMA <parameter_list>
+<remainingList> ===> eps
+<declarationStmt> ===> <type> <var_list> SEMICOLON
+<var_list> ===> ID <more_ids>
+<more_ids> ===> COMMA <var_list>
+<more_ids> ===> eps
+<assignmentStmt_type1> ===> <leftHandSide_singleVar> ASSIGNOP <rightHandSide_type1> SEMICOLON
+<assignmentStmt_type2> ===> <leftHandSide_listVar> ASSIGNOP <rightHandSide_type2> SEMICOLON
+<leftHandSide_singleVar> ===> ID
+<leftHandSide_listVar> ===> SQO <var_list> SQC
+<rightHandSide_type1> ===> <arithmeticExpression>
+<rightHandSide_type1> ===> <sizeExpression>
+<rightHandSide_type1> ===> <funCallStmt>
+<rightHandSide_type2> ===> <sizeExpression>
+<rightHandSide_type2> ===> <funCallStmt>
+<sizeExpression> ===> SIZE ID
+<ifStmt> ===> IF OP <booleanExpression> CL <stmt> <otherStmts> <ifStmtFactored>
+<ifStmtFactored> ===> ELSE <stmt> <otherStmts> ENDIF SEMICOLON
+<ifStmtFactored> ===> ENDIF SEMICOLON
+<otherStmts> ===> <stmt> <otherStmts>
+<otherStmts> ===> eps
+<ioStmt> ===> READ OP ID CL SEMICOLON
+<ioStmt> ===> PRINT OP ID CL SEMICOLON
+<funCallStmt> ===> FUNID OP <inputParameterList> CL
+<inputParameterList> ===> <var> <listVar>
+<listVar> ===> COMMA <inputParameterList>
+<listVar> ===> eps
+<arithmeticExpression> ===> <arithmeticTerm> <ArithExpFactored>
+<ArithExpFactored> ===> <operator_lowPrecedence> <arithmeticExpression>
+<ArithExpFactored> ===> eps
+<arithmeticTerm> ===> <factor> <ArithTermFactored>
+<ArithTermFactored> ===> <operator_highPrecedence> <arithmeticTerm>
+<ArithTermFactored> ===> eps
+<factor> ===> OP <arithmeticExpression> CL
+<factor> ===> <var>
+<operator_lowPrecedence> ===> PLUS
+<operator_lowPrecedence> ===> MINUS
+<operator_highPrecedence> ===> MUL
+<operator_highPrecedence> ===> DIV
+<booleanExpression> ===> OP <booleanExpression> CL <logicalOp> OP <booleanExpression> CL
+<booleanExpression> ===> <constrainedVars> <relationalOp> <constrainedVars>
+<constrainedVars> ===> ID
+<constrainedVars> ===> NUM
+<constrainedVars> ===> RNUM
+<var> ===> ID <MatLit>
+<var> ===> NUM
+<var> ===> RNUM
+<var> ===> STR
+<var> ===> <matrix>
+<var> ===> <funCallStmt>
+<MatLit> ===> <matrixElement>
+<MatLit> ===> eps
+<matrix> ===> SQO <rows> SQC
+<rows> ===> <row> <RowLit>
+<RowLit> ===> SEMICOLON <rows>
+<RowLit> ===> eps
+<row> ===> NUM <remainingColElements>
+<remainingColElements> ===> COMMA NUM <remainingColElements>
+<remainingColElements> ===> eps
+<matrixElement> ===> SQO NUM COMMA NUM SQC
+<logicalOp> ===> AND
+<logicalOp> ===> OR
+<booleanExpression> ===> NOT OP <booleanExpression> CL
+<relationalOp> ===> LT
+<relationalOp> ===> LE
+<relationalOp> ===> EQ
+<relationalOp> ===> GT
+<relationalOp> ===> GE
+<relationalOp> ===> NE
