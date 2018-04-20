@@ -261,40 +261,63 @@ tnode * tree_pruner(tnode* x,int par){
     int op_hi = get_symb_no("<operator_highPrecedence>");
     int fact  = get_symb_no("<factor>");
     int arith_term_fact=get_symb_no("<ArithTermFactored>");       
-    
+    int mul =get_symb_no("MUL");
+    int div =get_symb_no("DIV");
+    int add =get_symb_no("PLUS");
+    int sub =get_symb_no("MINUS");
+
+    // printf("checker %s\n",symb_name[arith_term_fact]);
+    if(x->symb_no==op_hi || x->symb_no == op_low){
+        x->child->sibling=x->sibling;
+        return x->child;
+    }
     /// base case 1 2 3
     if(x->symb_no==arith_term && x->sibling!=NULL && x->sibling->symb_no==arith_exp_fact){
         x->sibling = x->sibling->child;
+        printf("%s ** \n",x->child->lexeme);
         if(x->symb_no==arith_term && x->child!=NULL && x->child->sibling==NULL){
             x->child->sibling = x->sibling;
             return x->child;
         }        
         return x;
     }
-    if(x->symb_no== op_low && x->sibling!=NULL && x->sibling->symb_no==arith_exp_fact){
+    if((x->symb_no== add ||x->symb_no== sub)  && x->sibling!=NULL && x->sibling->symb_no==arith_exp_fact){
         x->sibling = x->sibling->child;
         return x;
     }
-    if(x->symb_no== op_hi && x->sibling!=NULL && x->sibling->symb_no==arith_exp_fact){
+    if((x->symb_no== div ||x->symb_no== mul) && x->sibling!=NULL && x->sibling->symb_no==arith_exp_fact){
         x->sibling = x->sibling->child;
         return x;
     }
     // base cases for the factor ones
     if(x->symb_no==fact && x->sibling!=NULL && x->sibling->symb_no==arith_term_fact){
+
+        x->sibling = x->sibling->child;
+            // printf("woot\n");
+        // matlit case hmm
+        int y = x->child->symb_no; 
+        if(y==get_symb_no("ID")||y==get_symb_no("NUM")||y==get_symb_no("RNUM")||y==get_symb_no("STR") \
+            || y==get_symb_no("<row>") ||y==get_symb_no("FUNID") || y ==  add ||y == sub \
+            || y== mul ||y== div){
+
+            x->child->sibling=x->sibling;
+            return x->child;
+        }
+        return x;
+    }
+    if((x->symb_no== add ||x->symb_no== sub) && x->sibling!=NULL && x->sibling->symb_no==arith_term_fact){
         x->sibling = x->sibling->child;
         return x;
     }
-    if(x->symb_no== op_low && x->sibling!=NULL && x->sibling->symb_no==arith_term_fact){
-        x->sibling = x->sibling->child;
-        return x;
-    }
-    if(x->symb_no== op_hi && x->sibling!=NULL && x->sibling->symb_no==arith_term_fact){
+    if((x->symb_no== mul ||x->symb_no== div) && x->sibling!=NULL && x->sibling->symb_no==arith_term_fact){
         x->sibling = x->sibling->child;
         return x;
     }    
 
-    // now let's resolve the arithemticTerm and Arithmetic Expression constructs
+    // now let's resolve the arithemticTerm and Arithmetic Expression constructs needs some fixing with respect to factor wali computations
     if(x->symb_no==arith_term && x->child!=NULL && x->child->sibling!=NULL && x->child->sibling->sibling!=NULL){
+        printf("wooter\n");
+        printf("%s \n",x->child->lexeme);
         tnode * one , *two,*three;
         one = x->child->sibling;
         two = x->child;
@@ -326,7 +349,9 @@ tnode * tree_pruner(tnode* x,int par){
         return x->child;
     }
     if(x->symb_no==arith_term && x->child!=NULL && x->child->sibling==NULL){
+        // printf("woots\n");
         x->child->sibling = x->sibling;
+        // printf("%s\n",x->child->lexeme);
         return x->child;
     }
 
