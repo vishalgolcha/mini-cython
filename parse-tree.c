@@ -321,7 +321,9 @@ void parse(){
 	}
 	// printf("%s \n",cur_tok->tok_name);
 	
-	while(cur_tok->tok_name!="eof"){
+	// was stupid enough to not use strcmp here in the first phase
+	
+	while(strcmp(cur_tok->tok_name,"eof")!=0){
 
 		res = parse_process();
 		if(res==2 || res==-2 ){
@@ -329,6 +331,10 @@ void parse(){
 			while(cur_tok==NULL){
 				cur_tok =get_next_token();
 			}
+			// printf("%s");
+			// if(cur_tok->tok_name=="eof"){
+				// printf("bo\n");
+			// }
 			// parse_process();
 			// printf("%s \n",cur_tok->tok_name);
 		}

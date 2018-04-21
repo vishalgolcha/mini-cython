@@ -1,5 +1,11 @@
-ast: ast.c astDefs.h lex.o llh.o extgrm.o ptree.o
-	gcc lex.o llh.o extgrm.o ptree.o  ast.c -o ast
+symbol-table: symbol-table.c symboltable.h hash-helper.o ast.o 
+	gcc symbol-table.c lex.o llh.o extgrm.o ptree.o ast.o hash-helper.o -o stout
+	
+hash-helper.o: hash-helper.c hash-helper.h astDefs.h lex.o llh.o extgrm.o ptree.o
+	gcc -c hash-helper.c -o hash-helper.o
+	
+ast.o: ast.c astDefs.h lex.o llh.o extgrm.o ptree.o
+	gcc -c ast.c -o ast.o
 
 compileAll :lex.o llh.o extgrm.o ptree.o driver.c
 	gcc lex.o llh.o extgrm.o ptree.o  driver.c -o stage1exe
@@ -19,7 +25,6 @@ llh.o :ll-helper.c lexer.h lexerDef.h
 
 clean :
 	rm *.o stage1exe
-
 test1 : compileAll
 	./stage1exe testcase1.txt result1.txt
 test2 : compileAll

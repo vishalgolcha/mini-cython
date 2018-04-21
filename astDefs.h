@@ -13,5 +13,10 @@ struct _ast_node{
 	int line_num;
 };
 
-ast_node * makenode();
-ast_node * create_tree();
+ast_node* makenode(tnode * x);
+ast_node* make_ast(tnode *x);
+int rem_redundant(int num);
+int get_symb_no(char * x);
+tnode * tree_pruner(tnode* x,int par);
+void calculate_children(tnode* trv_node);
+void ast_constructer(char *inp,char *outp);

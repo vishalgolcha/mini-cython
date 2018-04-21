@@ -137,6 +137,7 @@ void llst_traverse_str(llst_str x){
 		y=y->next;
 	}
 }
+
 htable * insert(htable *z , char * y,int id){
 	unsigned long h = hash(y);
 	int x = h%123;

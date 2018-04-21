@@ -217,6 +217,7 @@ tnode * tree_pruner(tnode* x,int par){
     <rows> ===> <row> <RowLit>
     <RowLit> ===> SEMICOLON <rows>      
     */ 
+    // occurence of an aritmetic expression term will now signify a row
     int row_id    = get_symb_no("<row>");
     int rowLit_id = get_symb_no("<RowLit>");
     if(x->symb_no == row_id && x->sibling!=NULL && x->sibling->symb_no== rowLit_id){
@@ -274,7 +275,23 @@ tnode * tree_pruner(tnode* x,int par){
     /// base case 1 2 3
     if(x->symb_no==arith_term && x->sibling!=NULL && x->sibling->symb_no==arith_exp_fact){
         x->sibling = x->sibling->child;
-        printf("%s ** \n",x->child->lexeme);
+        // printf("%s ** \n",x->child->lexeme);
+    
+        if(x->symb_no==arith_term && x->child!=NULL && x->child->sibling!=NULL && x->child->sibling->sibling!=NULL){
+        // printf("wooter\n");
+            // printf("%s \n",x->child->lexeme);
+            tnode * one , *two,*three;
+            one = x->child->sibling;
+            two = x->child;
+            three = x->child->sibling->sibling;        
+
+            x->child=one;
+            x->child->child = two;
+            x->child->child->sibling = three; 
+            x->child->sibling = x->sibling;
+            return x->child;
+        }
+    
         if(x->symb_no==arith_term && x->child!=NULL && x->child->sibling==NULL){
             x->child->sibling = x->sibling;
             return x->child;
@@ -300,6 +317,11 @@ tnode * tree_pruner(tnode* x,int par){
             || y==get_symb_no("<row>") ||y==get_symb_no("FUNID") || y ==  add ||y == sub \
             || y== mul ||y== div){
 
+            if(y==get_symb_no("ID") && x->child->sibling!=NULL){
+                // The curious case of matlit
+                x->child->sibling->sibling=x->sibling; 
+                return x->child;
+            }    
             x->child->sibling=x->sibling;
             return x->child;
         }
@@ -316,8 +338,8 @@ tnode * tree_pruner(tnode* x,int par){
 
     // now let's resolve the arithemticTerm and Arithmetic Expression constructs needs some fixing with respect to factor wali computations
     if(x->symb_no==arith_term && x->child!=NULL && x->child->sibling!=NULL && x->child->sibling->sibling!=NULL){
-        printf("wooter\n");
-        printf("%s \n",x->child->lexeme);
+        // printf("wooter\n");
+        // printf("%s \n",x->child->lexeme);
         tnode * one , *two,*three;
         one = x->child->sibling;
         two = x->child;
@@ -371,6 +393,9 @@ tnode * tree_pruner(tnode* x,int par){
             return x; // trying to preserve some structure helpful for the things ahead
         }
         if(x->symb_no==get_symb_no("<arithmeticExpression>")){
+            return x;
+        }
+        if(x->symb_no==get_symb_no("<declarationStmt>")){
             return x;
         }
         return x->child;
@@ -578,11 +603,9 @@ void ptraverse(tnode *trv_node){
 	}
 }
 
-int main(){
-
+void ast_constructer(char *inp,char *outp){
     // rem_redundant();
-    update_ptree("add.txt","addres.txt");
-    
+    update_ptree(inp,outp);
     // ast_node * ast_root = make_ast(ptree);
     // printf("%s \n",symb_name[ptree->child->symb_no]);
     ptree->child=tree_pruner(ptree->child,1);
@@ -593,7 +616,23 @@ int main(){
     ptraverse(ptree);
     // int symb = ptree->child->sibling->sibling->sibling->symb_no;
     // printf("%s \n",symb_name[symb]);
-
     // astraverse(ast_root);
-
 }
+
+
+// int main(){
+
+//     // rem_redundant();
+//     update_ptree("./revised_testcases/testcase5.txt","addres.txt");
+//     // ast_node * ast_root = make_ast(ptree);
+//     // printf("%s \n",symb_name[ptree->child->symb_no]);
+//     ptree->child=tree_pruner(ptree->child,1);
+//     printf("pruned\n");
+//     // printf("%s \n",symb_name[ptree->child->symb_no]);
+//     // printf("%s \n",symb_name[ptree->child->child->sibling->symb_no]);
+//     printf("%d \n",ptree->symb_no);
+//     ptraverse(ptree);
+//     // int symb = ptree->child->sibling->sibling->sibling->symb_no;
+//     // printf("%s \n",symb_name[symb]);
+//     // astraverse(ast_root);
+// }
