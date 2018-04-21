@@ -7,7 +7,7 @@
 sym_node * sroot;
 sym_node * scur;
 
-int sub1,div1,add1,mul1,mat1,row1,col1;
+int sub1,div1,add1,mul1,mat1,row1,col1,func1;
 
 void var_init(){
     mul1 = get_symb_no("MUL");
@@ -17,11 +17,12 @@ void var_init(){
     mat1 = get_symb_no("MATRIX");
     row1=0;
     col1=0;
+    func1=get_symb_no("FUNCTION");
 }
 
 sym_node* create_sym_node(){
     sym_node* x= (sym_node*)malloc(sizeof(sym_node));
-    x->htlink = create_hashtable_symtable(60);
+    x->htlink = create_hashtable_symtable(30);
     x->parent = NULL;
     x->child=NULL;
     x->sibling=NULL;
@@ -164,7 +165,8 @@ int mat_rhs_traversal_helper(char* typ,tnode *x,char * ac1,char* ac2){
             }
             else{
                 b=0;
-                
+                printf("Error on line %d in %s",x->line_num,x->lexeme);
+                printf(" incompatible type addition \n");
             }
         }
     } 
@@ -300,7 +302,9 @@ void traverse_and_construct(tnode* x){
     if(x->symb_no==dec_stm){
         // printf("in dec \n");
         // there was an error here
-        char * typ =x->child->child->lexeme;
+
+        // could get erroneous check thorughly
+        char * typ  = symb_name[x->child->child->symb_no];
         tnode *list = x->child->sibling->child;
         while(list!=NULL){
             char* check =repeated_find(list);
@@ -315,9 +319,169 @@ void traverse_and_construct(tnode* x){
             list=list->sibling;
         }
     }
-
-    /*******************************LHS 1 = RHS1 semantic checks*************************************/
+    /******************************* Function insertions   ******************************************/
     /************************************************************************************************/
+    
+    // accumulates types and ids as different linked lists  of hnodes
+
+    if(x->symb_no == func1){
+        // FUNCTION ->paralist->=->FUNID->paralist-><stmtsAndFunctionDefs>
+        // paralist needs <type's> kid <type> followed by <id> and so on .
+        llhnode * list1_types = (llhnode*)malloc(sizeof(llhnode));
+        llhnode * list2_ids = (llhnode*)malloc(sizeof(llhnode));
+
+        // pointer declarations from the heap help in populating inptypes and outypes       
+
+        tnode * out_temp = x->sibling->child;
+        // printf("%s \n",symb_name[out_temp->sibling->symb_no]);
+        int cnt1=0;
+
+        while(out_temp!=NULL){
+            if(cnt1%2==0){
+                list1_types = hnode_attach(list1_types,out_temp->child,\
+                symb_name[out_temp->child->symb_no],NULL,NULL);
+            }
+            else{
+
+                list2_ids = hnode_attach(list2_ids,out_temp,\
+                symb_name[out_temp->symb_no],NULL,NULL);
+
+            }
+            cnt1++;
+            out_temp=out_temp->sibling;
+        } 
+        
+        
+        char *func_name = x->sibling->sibling->sibling->lexeme;
+        tnode * func_node = x->sibling->sibling;
+        tnode * inp_temp = x->sibling->sibling->sibling->sibling->child;
+        // printf("%s \n",symb_name[inp_temp->symb_no]);
+
+        llhnode * list1_types2 = (llhnode*)malloc(sizeof(llhnode));
+        llhnode * list2_ids2   = (llhnode*)malloc(sizeof(llhnode));
+        
+        cnt1=0; 
+        while(inp_temp!=NULL){
+            if(cnt1%2==0){
+                // printf("in here\n");
+                // printf("%s \n",symb_name[inp_temp->child->symb_no]);
+                list1_types2 = hnode_attach(list1_types2,inp_temp->child,\
+                symb_name[inp_temp->child->symb_no],NULL,NULL); 
+            }
+            else{
+                list2_ids2 = hnode_attach(list2_ids2,inp_temp,\
+                symb_name[inp_temp->symb_no],NULL,NULL);
+            }
+            cnt1++;
+            inp_temp=inp_temp->sibling;
+        } 
+        // printf("done \n");
+        sym_node *tr;
+        if(scur->child==NULL){
+            sym_node * tempp = create_sym_node(); 
+            // printf("in here \n");
+            tempp->scope_name=func_name;
+            // printf("in here 3\n");            
+            tempp->parent=scur;
+            scur->child=tempp;
+            // printf("in here 3\n");            
+            tr =tempp;
+
+        }
+        else{
+            tr = scur->child;
+            while(tr->sibling!=NULL){
+                tr=tr->sibling;
+            }
+            sym_node * tempp = create_sym_node(); 
+            tempp->scope_name=func_name;
+            tempp->parent=scur;
+            tr->sibling = tempp;
+            tr =tr->sibling;
+        }
+        // printf("done2\n");
+        // hnode_llst_traverse(list2_ids2);
+        /*******************************************************************/
+        /******************* put function details inside current htable*****/
+        
+        // need an if find construct here also
+        
+        if(find_sym_htable(scur->htlink,func_node)==NULL){
+            scur->htlink=insert_sym_htable(scur->htlink,func_node,"FUNID",\
+            list1_types,list1_types2);
+        }
+        else{
+            printf("Error on line %d func redefinition function already exists in the scope \n",\
+            func_node->line_num);
+        }
+        scur=tr;
+
+        // printf("inserted \n");
+        // change scope
+	    hnode* p1 = list2_ids->head;
+        hnode* p2 = list1_types->head;
+        // now we need to insert these parameter variables into the current hashtable
+        // printf("poop\n");
+        
+        // printf("%s ",scur->scope_name);
+    
+
+        while(p1!=NULL){
+            scur->htlink = insert_sym_htable(scur->htlink,p1->ele,symb_name[p2->symb_no]\
+            ,NULL,NULL);
+            p1=p1->next;
+            p2=p2->next;            
+        }
+        // printf("done3");        
+        p1 = list2_ids2->head;
+        p2 = list1_types2->head;
+
+        while(p1!=NULL){
+            scur->htlink = insert_sym_htable(scur->htlink,p1->ele,symb_name[p2->symb_no]\
+            ,NULL,NULL);
+            p1=p1->next;
+            p2=p2->next;
+        }
+
+    }
+
+    if(x->symb_no == get_symb_no("END") && scur->parent!=NULL){
+        // printf("hitting the end of life \n");
+        scur= scur->parent;
+        // printf("%s",scur->scope_name);
+    }
+
+    /*****************************************************************************************/
+    
+    /***********************************Handling func calls***********************************/
+    /***********************************and LHS multi list ***********************************/
+    // lhs has varlist below which has list 
+
+    if(x->symb_no==get_symb_no("<leftHandSide_listVar>")){  
+        tnode * vtyp_list = x->child->child;
+        llhnode * list1 = (llhnode*)malloc(sizeof(llhnode));
+        
+        llst_str = ;
+        int lflag=1;
+        while(vtyp_list!=NULL){
+            if(repeated_find(vtyp_list)==NULL){
+                printf("Error on line num %d in var %s",vtyp_list->line_num,vtyp_list->lexeme);
+                printf("Not declared before \n");
+            }
+            list1= hnode_attach(list1,vtyp_list,\
+            symb_name[vtyp_list->symb_no],NULL,NULL);
+            vtyp_list=vtyp_list->sibling;
+        }
+        
+        tnode *fun_list = x->sibling->sibling->sibling->child;
+        
+    }
+
+ 
+
+
+    /*******************************LHS 1 = RHS1 semantic checks*******************************/
+    /******************************************************************************************/
 
     int rhs1 = get_symb_no("<rightHandSide_type1>");
     int lhs1 = get_symb_no("<leftHandSide_singleVar>");
@@ -331,40 +495,47 @@ void traverse_and_construct(tnode* x){
         char* check = repeated_find(x->child);
         // printf("check print %s",check);
         
-        if(check==NULL){
-            // printf("here\n");
-            printf("Error on line %d undeclared variable %s \n",x->child->line_num,\
-            x->child->lexeme);
-        }
-        else if(strcmp(check,"MATRIX")!=0){
-            int ch2=non_matrix_rhs_traverse(check,x->sibling->sibling->child);
-            if(ch2==0){
-                printf("non - similar data types in computation on line %d \n",x->line_num);
-            }
-        }
-        else{ 
-            // ast constructed such that row variable has a parent rows else
-            //  rows would not be in the ast;
-            // printf("%s \n",symb_name[x->sibling->sibling->child->symb_no]);
-            int ch2 = mat_rhs_traversal_helper(check,x->sibling->sibling->child,"ID","<rows>");
-            if(ch2==1){
-                // modify hashtable to add sizes to the matrix;
-                // printf("computed \n");
-                pair * kk = (pair*)malloc(sizeof(pair));
-                kk->r = row1;
-                kk->c = col1;
-                repeated_find_modify_rc_(x->child,kk);
-                printf("matrix size assigned to %s \n",x->child->lexeme);
-                row1=0;
-                col1=0;
-            }
-            else{
-                printf("Error on line %d variable could note be computed because of thr above erros %s\
-                 \n",x->child->line_num,\
+        if(x->sibling->sibling->child->symb_no != get_symb_no("FUNID")\
+        || x->sibling->sibling->child->symb_no != get_symb_no("SIZE")){        
+            if(check==NULL){
+                // printf("here\n");
+                printf("Error on line %d undeclared variable %s \n",x->child->line_num,\
                 x->child->lexeme);
             }
+            else if(strcmp(check,"MATRIX")!=0){
+                int ch2=non_matrix_rhs_traverse(check,x->sibling->sibling->child);
+                if(ch2==0){
+                    printf("non - similar data types in computation on line %d \n",x->line_num);
+                }
+            }
+            else{ 
+                // ast constructed such that row variable has a parent rows else
+                // rows would not be in the ast;
+                // printf("%s \n",symb_name[x->sibling->sibling->child->symb_no]);
+                int ch2 = mat_rhs_traversal_helper(check,x->sibling->sibling->child,"ID","<rows>");
+                if(ch2==1){
+                    // modify hashtable to add sizes to the matrix;
+                    // printf("computed \n");
+                    pair * kk = (pair*)malloc(sizeof(pair));
+                    kk->r = row1;
+                    kk->c = col1;
+                    repeated_find_modify_rc_(x->child,kk);
+                    printf("matrix size assigned to %s \n",x->child->lexeme);
+                    row1=0;
+                    col1=0;
+                }
+                else{
+                    printf("Error on line %d variable could note be computed because of thr above erros %s\
+                    \n",x->child->line_num,\
+                    x->child->lexeme);
+                }
+            }
         }
+        
     }
+
+    
+
 
 
     tnode * z = x->child;
@@ -379,7 +550,7 @@ void traverse_and_construct(tnode* x){
 
 void make_sym_table(tnode *root){
     sroot= create_sym_node();
-    sroot->scope_name="MAIN";        
+    strcpy(sroot->scope_name,"MAIN");        
     scur=sroot;
     traverse_and_construct(root);    
 }

@@ -1,4 +1,4 @@
-symbol-table: symbol-table.c symboltable.h hash-helper.o ast.o 
+symbol-table: symbol-table.c symboltable.h hash-helper.o ast.o hash-helper.c 
 	gcc symbol-table.c lex.o llh.o extgrm.o ptree.o ast.o hash-helper.o -o stout
 	
 hash-helper.o: hash-helper.c hash-helper.h astDefs.h lex.o llh.o extgrm.o ptree.o

@@ -12,40 +12,47 @@ htable_sym * create_hashtable_symtable(int array_size){
 
 /******************************************************/
 
-hnode *hnode_create_node(tnode *t,char *typ,llst_str *a,llst_str *b){
+hnode *hnode_create_node(tnode *t,char *typ,llhnode *a,llhnode *b){
     	
-	hnode* x = (hnode *) malloc(sizeof(hnode));
-	x->var_type = (char *)malloc(sizeof(char)*50);
-	x->next=NULL;
-	x->lexeme = (char *)malloc(sizeof(char)*50);
-	x->symb_no = t->symb_no;
-    strcpy(x->lexeme,t->lexeme);
-    strcpy(x->var_type,typ);
-    x->line_num = t->line_num;
-    x->row_num = -1;
-	x->col_num = -1;
-    if(strcmp(symb_name[x->symb_no],"FUNID")==0){
-        x->is_func=1;
-        x->inpt=a;
-        x->outt=b;
-        x->inp_num=a->cnt;
-        x->out_num=b->cnt;
+	hnode* hvart = (hnode *) malloc(sizeof(hnode));
+	// printf("debugger2\n");
+	hvart->next=NULL;
+
+	hvart->lexeme = (char *)malloc(sizeof(char)*30);
+	hvart->var_type = (char *)malloc(sizeof(char)*30);
+
+	hvart->symb_no = t->symb_no;
+
+    strcpy(hvart->lexeme,t->lexeme);
+    strcpy(hvart->var_type,typ);
+    hvart->line_num = t->line_num;
+    hvart->row_num = -1;
+	hvart->col_num = -1;
+    hvart->ele = t;
+	if(strcmp(symb_name[hvart->symb_no],"FUNID")==0){
+        hvart->is_func=1;
+        hvart->inpt=a;
+        hvart->outt=b;
+        hvart->inp_num=a->cnt;
+        hvart->out_num=b->cnt;
     }
     else{
-        x->is_func=0;
-        x->inpt=NULL;
-        x->outt=NULL;
-        x->inp_num=0;
-        x->out_num=0;        
+        hvart->is_func=0;
+        hvart->inpt=NULL;
+        hvart->outt=NULL;
+        hvart->inp_num=0;
+        hvart->out_num=0;        
     }
     
     // use strcpy later for this
-    return x;
+    return hvart;
 }
 
 // could do without returns here hmm
-llhnode* hnode_attach(llhnode* x,tnode *t,char *typ,llst_str *a,llst_str *b){
+llhnode* hnode_attach(llhnode* x,tnode *t,char *typ,llhnode *a,llhnode *b){
+	// printf("debugger\n");
 	hnode* y =hnode_create_node(t,typ,a,b);
+
 	if(x->cnt==0){
 		x->head=y;		
 		x->tail=y;
@@ -53,6 +60,7 @@ llhnode* hnode_attach(llhnode* x,tnode *t,char *typ,llst_str *a,llst_str *b){
 	else{
 		x->tail->next = y;
 		x->tail = x->tail->next;
+		x->tail->next=NULL;
 	}
 	x->cnt++;
 	return x ;
@@ -73,12 +81,13 @@ void hnode_llst_traverse(llhnode * x){
 		printf("%s\n",y->lexeme);	
 		y=y->next;
 	}
+	// printf("terminate\n");
 }
 
 /******************************************************/
 
 htable_sym * insert_sym_htable(htable_sym  *z ,tnode* y/*this gets the funid node */ \
-            ,char *typ,llst_str * inpt ,llst_str * outt/* link lists of strings to store type info
+            ,char *typ,llhnode * inpt ,llhnode * outt/* link lists of strings to store type info
             of func defined */ ){
 	
     unsigned long h = hash(symb_name[y->symb_no]);

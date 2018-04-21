@@ -122,6 +122,7 @@ llst_str attach_str(llst_str x,char *z,int n){
 	x.cnt++;
 	return x ;
 }
+
 void llst_traverse(llsti x){
 	node *y = x.head;
 	while(y!=NULL){

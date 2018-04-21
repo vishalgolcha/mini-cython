@@ -8,11 +8,11 @@
 #include "astDefs.h"
 
 int redundant[11];
-char * red_names[9]={"MAIN","END","SQO","SQC","OP","CL","COMMA","SEMICOLON","eps"};
+char * red_names[9]={"MAIN","SQO","SQC","OP","CL","COMMA","SEMICOLON","eps"};
 
 int rem_redundant(int num){  //this is the symb_no
     int i;
-    for(i=0;i<9;i++){
+    for(i=0;i<8;i++){
         if(strcmp(symb_name[num],red_names[i])==0){
            return 1; 
         }

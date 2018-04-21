@@ -7,16 +7,17 @@ typedef struct _hnode hnode;
 typedef struct _llhnode llhnode;
 
 struct _hnode{
-    char * var_type;
+    char *var_type;
     int is_func;
-    llst_str *inpt,*outt;
+    llhnode *inpt,*outt;
     int row_num ,col_num;
 	int symb_no;
-	char * lexeme;
+	char *lexeme;
 	int line_num;
     int inp_num;
     int out_num;
     hnode *next;
+    tnode *ele ; // just using this for fun paras
     //  input output 
 };
 
@@ -42,10 +43,10 @@ htable_sym * create_hashtable_symtable(int array_size);
 
 /******************************************************/
 
-hnode *hnode_create_node(tnode *t,char *typ,llst_str *a,llst_str *b);
+hnode *hnode_create_node(tnode *t,char *typ,llhnode *a,llhnode *b);
 
 // could do without returns here hmm
-llhnode* hnode_attach(llhnode* x,tnode *t,char *typ,llst_str *a,llst_str *b);
+llhnode* hnode_attach(llhnode* x,tnode *t,char *typ, llhnode *a,llhnode *b);
 
 node* hnode_llst_top(llsti x);
 
@@ -54,7 +55,7 @@ void hnode_llst_traverse(llhnode * x);
 /******************************************************/
 
 htable_sym * insert_sym_htable(htable_sym  *z ,tnode* y/*this gets the funid node */ \
-            ,char *typ,llst_str * inpt ,llst_str * outt/* link lists of strings to store type info
+            ,char *typ,llhnode * inpt ,llhnode * outt/* link lists of strings to store type info
             of func defined */ );
 
 char* find_sym_htable(htable_sym* z,tnode *y);

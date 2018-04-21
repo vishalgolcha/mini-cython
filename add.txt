@@ -1,4 +1,12 @@
 _main[]
-    matrix k;
-    k = [2,2;2,2]+[2,2;2,2];
+    string str1,a1,a2;
+    function [string s]= _concatenate[string a, string a2]
+		string z,k ;
+        str1 = a1 + a2;
+    end;
+    
+    function [string s]= _concatenate[string a, string a2]
+        str1 = a1 + a2;
+    end;
+
 end
