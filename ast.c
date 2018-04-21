@@ -221,7 +221,7 @@ tnode * tree_pruner(tnode* x,int par){
     int row_id    = get_symb_no("<row>");
     int rowLit_id = get_symb_no("<RowLit>");
     if(x->symb_no == row_id && x->sibling!=NULL && x->sibling->symb_no== rowLit_id){
-        x->sibling = x->sibling->child;         
+        x->sibling = x->sibling->child->child;         
         return x;
     }
 
@@ -392,7 +392,7 @@ tnode * tree_pruner(tnode* x,int par){
         if(x->symb_no==row_id){
             return x; // trying to preserve some structure helpful for the things ahead
         }
-        if(x->symb_no==get_symb_no("<arithmeticExpression>")){
+        if(x->symb_no==get_symb_no("<rows>")){
             return x;
         }
         if(x->symb_no==get_symb_no("<declarationStmt>")){

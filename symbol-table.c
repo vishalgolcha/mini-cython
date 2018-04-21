@@ -80,11 +80,13 @@ pair* matrix_size_check(tnode *y){
     int c = 0;
     int r = 0;
 
+    // printf("issue here 1\n");
     pair * np = (pair *)malloc(sizeof(pair));
     while(xc!=NULL){
         c++;
         xc=xc->sibling;
     }
+    // printf("issue here 2\n");
     while(x!=NULL){
         r++;
         tnode *t = x->child;    
@@ -98,7 +100,10 @@ pair* matrix_size_check(tnode *y){
             np->r=-1;
             return np;
         }
+        x=x->sibling;
     }
+    // printf("issue here 3\n");
+
     np->r=r;
     np->c=c;
     return np;
@@ -110,7 +115,7 @@ pair* matrix_size_check(tnode *y){
 
 int mat_rhs_traversal_helper(char* typ,tnode *x,char * ac1,char* ac2){
     // ensure the passed pointer is not ArithExp
-    
+    // printf("in here %s \n",symb_name[x->symb_no]);
     int a=1,b=1,c=1;
     
     if(x->child!=NULL){
@@ -128,7 +133,7 @@ int mat_rhs_traversal_helper(char* typ,tnode *x,char * ac1,char* ac2){
     }
     else if(strcmp(z,ac1)==0){
         // look for the id in the symbol table
-        char * j=repeated_find_retrieve_rc_(x);
+        char * j=repeated_find(x);
         pair * k=repeated_find_retrieve_rc_(x);
 
         if(j==NULL){
@@ -138,23 +143,63 @@ int mat_rhs_traversal_helper(char* typ,tnode *x,char * ac1,char* ac2){
         else{
             // k cant be NULL since we found the id in the hash 
             
-            if(k->r==-1){
-                printf("Error on line %d undeclared variable %s \n",x->line_num,x->lexeme);
-
-            }
             if(strcmp(j,typ)==0){
                 b=1;
+                if(k->r==-1){
+                    printf("Error on line %d in %s",x->line_num,x->lexeme);
+                    printf("unknown matrix size , invalidates computaion ,\
+                     please assign the matrix variable  a value .\n");
+                    b=0;
+                }
+                else if(row1==0 && col1==0){
+                    // assign row value and col to this global variable
+                    row1=k->r;
+                    col1=k->c;
+                }
+                else if(row1!=k->r || col1!=k->c){
+                    printf("Error on line %d in %s",x->line_num,x->lexeme);
+                    printf("dissimilar matrix sizes for computation \n");            
+                    b=0;
+                }
             }
             else{
                 b=0;
+                
             }
         }
     } 
     else if(strcmp(z,ac2)==0){
+        // the key matches to that of arithmetic expression hence the child contains a matrix
+        // get the size of the matrix below
         b=1;
+        pair *k =matrix_size_check(x->child); // this row->row->row with their respective col kids below
+        // printf("m size %d %d \n",k->c,k->r);
+        // printf("segment2\n");
+
+        if(k->r==-1 || k->c==-1){
+            printf("Error on line %d ",x->child->line_num);
+            printf("non uniform matrix encountered in computation evry row should have same number of cols\n");
+            b=0;
+        }
+        else if(row1==0 && col1==0){
+            row1 = k->r;
+            col1 = k->c;
+        }
+        else if(row1!=k->r || col1!=k->c){
+            printf("Error on line %d ",x->child->line_num);
+            printf("dissimilar matrix types in computation\n");
+            b=0;
+        }
     }
     else{
-        b=0;
+
+        if(strcmp(z,"<row>")==0 || strcmp(z,"NUM")==0){
+            b=1;
+        }
+        else{
+            b=0;
+            printf("we hit this\n");
+        }
     }
     
     if(x->child!=NULL){
@@ -169,8 +214,7 @@ int mat_rhs_traversal_helper(char* typ,tnode *x,char * ac1,char* ac2){
 
 
 int rhs_traversal_helper(char* typ,tnode *x,char * ac1,char* ac2){
-    // ensure the passed pointer is not ArithExp
-    
+    // ensure the passed pointer is not rows
     int a=1,b=1,c=1;
     
     if(x->child!=NULL){
@@ -238,14 +282,10 @@ int non_matrix_rhs_traverse(char *typ,tnode *rhs){
     return ch;
 }
 
-char * type_check_rhs1(char * lhs_type,tnode *y){
-    if(y->child->symb_no==get_symb_no("<arithmeticExpression>")){
-        // arithmetic expressions occurence always followed by a row variable;
-    
-        pair* temp = matrix_size_check(y->child->child);
-        
-    }
-}
+
+
+/**************************************************************************************************/
+/**************************************************************************************************/
 
 void traverse_and_construct(tnode* x){
     if(x->child!=NULL)
@@ -269,14 +309,14 @@ void traverse_and_construct(tnode* x){
                 printf("Error on line %d redeclared variable %s \n",list->line_num,symb_name[list->symb_no]);
             }
             else{
-                printf("inserted\n");
+                // printf("inserted\n");
                 scur->htlink=insert_sym_htable(scur->htlink,list,typ,NULL,NULL);
             }
             list=list->sibling;
         }
     }
 
-    /************************************************************************************************/
+    /*******************************LHS 1 = RHS1 semantic checks*************************************/
     /************************************************************************************************/
 
     int rhs1 = get_symb_no("<rightHandSide_type1>");
@@ -289,7 +329,7 @@ void traverse_and_construct(tnode* x){
 
     if(x->symb_no==lhs1){
         char* check = repeated_find(x->child);
-        printf("check print %s",check);
+        // printf("check print %s",check);
         
         if(check==NULL){
             // printf("here\n");
@@ -303,10 +343,26 @@ void traverse_and_construct(tnode* x){
             }
         }
         else{ 
-            // ast constructed such that row variable has a parent <arithmeticExpression> else
-            //  arithmeticExpression would not be in the ast;
-            int ch2 = mat_rhs_traversal_helper(typ,x->sibling->sibling->child,"ID","<arithmeticExpression>");
-            
+            // ast constructed such that row variable has a parent rows else
+            //  rows would not be in the ast;
+            // printf("%s \n",symb_name[x->sibling->sibling->child->symb_no]);
+            int ch2 = mat_rhs_traversal_helper(check,x->sibling->sibling->child,"ID","<rows>");
+            if(ch2==1){
+                // modify hashtable to add sizes to the matrix;
+                // printf("computed \n");
+                pair * kk = (pair*)malloc(sizeof(pair));
+                kk->r = row1;
+                kk->c = col1;
+                repeated_find_modify_rc_(x->child,kk);
+                printf("matrix size assigned to %s \n",x->child->lexeme);
+                row1=0;
+                col1=0;
+            }
+            else{
+                printf("Error on line %d variable could note be computed because of thr above erros %s\
+                 \n",x->child->line_num,\
+                x->child->lexeme);
+            }
         }
     }
 
