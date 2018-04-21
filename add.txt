@@ -1,12 +1,12 @@
 _main[]
-    string str1,a1,a2;
-    function [string s]= _concatenate[string a, string a2]
-		string z,k ;
-        str1 = a1 + a2;
-    end;
-    
-    function [string s]= _concatenate[string a, string a2]
-        str1 = a1 + a2;
-    end;
-
+	int a,b,c;
+	a = 3;
+	b = 5;
+	function [int sum, int diff, int prod]= _calculator[int c, int d]
+		sum = c + d;
+		diff = c*d;
+		prod = c - d;
+	end;
+    real d;
+    [a,b,c] = _calculator(a,d);
 end

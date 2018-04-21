@@ -192,8 +192,9 @@ tnode * tree_pruner(tnode* x,int par){
       
     ************************************************/
     
-    // there was ! here in x->sibling->symb_no != paralist_id which was wrong check other statements written while tests
-
+    // there was ! here in x->sibling->symb_no != paralist_id 
+    // which was wrong check other statements written while tests
+    
     int paralist_id  =get_symb_no("<remainingList>");
     if(x->symb_no == ast_id && x->sibling!=NULL && x->sibling->symb_no== paralist_id){
         x->sibling = x->sibling->child;         

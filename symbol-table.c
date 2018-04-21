@@ -30,6 +30,43 @@ sym_node* create_sym_node(){
     return x;    
 }
 
+typedef struct llh_pair{
+    llhnode * x,*y;
+}llhnode_pair;
+
+llhnode_pair* llhnode_find_sym_htable(htable_sym* z,tnode *y){
+	unsigned long h = hash(symb_name[y->symb_no]);
+	int x = h%(z->lcnt);
+	// printf("hash value %d\n",x );
+	hnode *t = (z->hlist[x]).head;
+    while(t!=NULL){
+		// printf("%d\n",y->val);
+		if(strcmp(t->lexeme,y->lexeme)==0 \
+                  && t->symb_no ==y->symb_no){ 
+			llhnode_pair* temp = (llhnode_pair*)malloc(sizeof(llhnode_pair));
+            temp->x=t->inpt;
+            temp->y=t->outt;
+            return temp ;  // retrieve this and index-1 on calls
+		}	
+		t=t->next;
+	}	
+	return NULL;
+}
+
+llhnode_pair *repeated_find_get_list(tnode *y){
+    sym_node * x = scur;
+    while(x!=NULL){
+        llhnode_pair * res = llhnode_find_sym_htable(x->htlink,y);
+        if(res!=NULL){
+            return res;
+        }
+        else{
+            x=x->parent;
+        }
+    }
+    return NULL;
+}
+
 char * repeated_find(tnode *y){
     sym_node * x = scur;
     while(x!=NULL){
@@ -353,7 +390,7 @@ void traverse_and_construct(tnode* x){
         
         
         char *func_name = x->sibling->sibling->sibling->lexeme;
-        tnode * func_node = x->sibling->sibling;
+        tnode * func_node = x->sibling->sibling->sibling;
         tnode * inp_temp = x->sibling->sibling->sibling->sibling->child;
         // printf("%s \n",symb_name[inp_temp->symb_no]);
 
@@ -407,6 +444,7 @@ void traverse_and_construct(tnode* x){
         // need an if find construct here also
         
         if(find_sym_htable(scur->htlink,func_node)==NULL){
+            // printf("%s\n",symb_name[func_node->symb_no]);
             scur->htlink=insert_sym_htable(scur->htlink,func_node,"FUNID",\
             list1_types,list1_types2);
         }
@@ -460,21 +498,100 @@ void traverse_and_construct(tnode* x){
     if(x->symb_no==get_symb_no("<leftHandSide_listVar>")){  
         tnode * vtyp_list = x->child->child;
         llhnode * list1 = (llhnode*)malloc(sizeof(llhnode));
-        
-        llst_str = ;
+
+        llst_str* list1_types =  (llst_str*)malloc(sizeof(llst_str));
+
         int lflag=1;
+        
         while(vtyp_list!=NULL){
-            if(repeated_find(vtyp_list)==NULL){
+            char * temp_typ =repeated_find(vtyp_list);
+            if(temp_typ==NULL){
                 printf("Error on line num %d in var %s",vtyp_list->line_num,vtyp_list->lexeme);
                 printf("Not declared before \n");
+                *list1_types = attach_str(*list1_types," ",0);
+            }
+            else{
+                *list1_types = attach_str(*list1_types,temp_typ,0);
             }
             list1= hnode_attach(list1,vtyp_list,\
             symb_name[vtyp_list->symb_no],NULL,NULL);
             vtyp_list=vtyp_list->sibling;
         }
         
-        tnode *fun_list = x->sibling->sibling->sibling->child;
+        tnode *fun_list = x->sibling->sibling->child; 
         
+        llhnode_pair * func_pair; 
+        llhnode *list2;
+        llst_str *list2_types;
+        
+        if(fun_list->symb_no = get_symb_no("FUNID")){
+            func_pair = repeated_find_get_list(fun_list);    
+            if(func_pair==NULL){
+                printf("Error on line no %d ",fun_list->line_num);
+                printf("function not declared before use .");
+                // printf("%s\n",scur->scope_name);
+            }
+            /*
+
+            // the following block was being used for matchine variale types in functions but
+            // gave seg faults in the end 
+            
+            else{
+                // accumulate input variables also
+                list2 = (llhnode*)malloc(sizeof(llhnode));
+
+                list2_types =  (llst_str*)malloc(sizeof(llst_str));
+                
+                int lflag=1;
+                
+
+                tnode * ftyp_list = fun_list->sibling->child;
+                printf("%s",symb_name[ftyp_list->symb_no]);  
+
+                while(ftyp_list!=NULL){
+                    char * temp_typ =repeated_find(ftyp_list);
+                    if(temp_typ==NULL){
+                        printf("Error on line num %d in var %s",ftyp_list->line_num,ftyp_list->lexeme);
+                        printf("Not declared before \n");
+                        *list2_types = attach_str(*list2_types," ",0);
+                    }
+                    else{
+                        *list2_types = attach_str(*list2_types,temp_typ,0);
+                    }
+                    list2= hnode_attach(list2,ftyp_list,\
+                    symb_name[ftyp_list->symb_no],NULL,NULL);
+                    ftyp_list=ftyp_list->sibling;
+                }
+
+                // printf("in here\n");
+                // input parameters check
+                if(func_pair->y->cnt == list2->cnt){
+                    printf("Error on line num %d in var %s",ftyp_list->line_num,ftyp_list->lexeme);
+                    printf("Incorrect number of parameters \n");
+                }
+                else{
+                    str_node *tr2;
+                    hnode * tr1 ;
+                    tr1 = func_pair->y->head;
+                    tr2 = list2_types->head;
+
+                    while(tr1!=NULL){
+                        if(strcmp(tr1->lexeme,tr2->str_val)==0){
+                            ;
+                        }
+                        else{
+                            printf("Error on line num %d in var %s",ftyp_list->line_num,ftyp_list->lexeme);
+                            printf(" parameter type mismatch \n");
+                                        
+                        }
+                        tr1=tr1->next;
+                        tr2=tr2->next;
+                    }                                        
+                }
+            }*/
+
+        }
+
     }
 
  
