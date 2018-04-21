@@ -1,3 +1,7 @@
+///////////////////////////////////////
+// Author: Vishal Golcha 
+// Id: 2014B5A70717P
+///////////////////////////////////////
 #include "symboltable.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -672,11 +676,11 @@ void make_sym_table(tnode *root){
     traverse_and_construct(root);    
 }
 
-int main(){
-    ast_constructer("add.txt","addout.txt");
-    printf("******************************\n");
-    // printf("%s\n",symb_name[ptree->child->symb_no]);
-    // printf("******************************\n");    
-    var_init();
-    make_sym_table(ptree);
-}
+// int main(){
+//     ast_constructer("add.txt","addout.txt");
+//     printf("******************************\n");
+//     // printf("%s\n",symb_name[ptree->child->symb_no]);
+//     // printf("******************************\n");    
+//     var_init();
+//     make_sym_table(ptree);  
+// }

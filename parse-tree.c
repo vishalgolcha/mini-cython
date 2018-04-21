@@ -16,6 +16,8 @@ htable * token_lookup;
 tnode *ptree;
 tnode *cur;
 llsti ptstack;
+int suc_parse=-1;
+int parse_tree_count =0;
 // dnt forget to initialize this stack
 
 typedef struct _stack_pair{
@@ -381,6 +383,7 @@ void parse(){
 	// llst_traverse(ptstack);
 	//
 	if(eof_flag==1 && res==3){
+		suc_parse=1;
 		printf("properly parsed without syntactic errors\n");
 	}
 	else if(res==3){
@@ -450,6 +453,62 @@ void inorder(tnode* trv_node){
 
 	}
 }
+void inorder_final(tnode* trv_node){
+
+	// lexemeCurrentNode  lineno token valueIfNumber parentNodeSymbol
+	// isLeafNode(yes/no) NodeSymbol
+	if(trv_node==NULL){
+		return;
+	}
+	if(trv_node->child!=NULL){
+		// printf("not null\n");
+		// printf("%s par %s \n",trv_node->child->lexeme,trv_node->lexeme);
+		// printf("%s\n",trv_node->child->lexeme);		
+		inorder_final(trv_node->child);	
+	}
+
+	
+	// printf("%d\n",trv_node->symb_no);
+	parse_tree_count++;
+	if(trv_node->symb_no == -42){
+		// printf("----\n");
+		printf("%25.25s %6d %25.25s %25.25s %25.25s %6.6s %25.25s\n","----",-1,"----","----","----","NO","$");
+	}
+	else{
+		if(strcmp(trv_node->lexeme,"<mainFunction>")==0){
+			// printf("parent $\n");
+			printf("%25.25s %6d %25.25s %25.25s %25.25s %6.6s %25.25s\n","----",-1,"----","----","$","NO","<mainFunction>");
+		}
+		else if(trv_node->symb_no==0){
+			// printf("%s\n",trv_node->parent->lexeme);
+			printf("%25.25s %6d %25.25s %25.25s %25.25s %6.6s %25.25s\n","eps",-1,"eps","----",trv_node->parent->lexeme,"YES","----");	
+		}
+		else if(strcmp(symb_name[trv_node->symb_no],"RNUM")==0 ||strcmp(symb_name[trv_node->symb_no],"NUM")==0){
+			printf("%25.25s %6d %25.25s %25.25s %25.25s %6.6s %25.25s\n",trv_node->lexeme,trv_node->line_num,symb_name[trv_node->symb_no]
+				,trv_node->lexeme,trv_node->parent->lexeme,"YES","----");	
+		}
+		else if(trv_node->symb_no <=38){
+			printf("%25.25s %6d %25.25s %25.25s %25.25s %6.6s %25.25s\n",trv_node->lexeme,trv_node->line_num,symb_name[trv_node->symb_no]
+				,"----",trv_node->parent->lexeme,"YES","----");
+		}
+		else if(trv_node->symb_no>38){
+			printf("%25.25s %6d %25.25s %25.25s %25.25s %6.6s %25.25s\n","----",-1,"----","----",trv_node->parent->lexeme,"NO",trv_node->lexeme);	
+		}
+		// else if()
+	}
+	if(trv_node->child!=NULL){
+		// printf("in here %s ")
+		tnode * x = trv_node->child->sibling;
+		while(x!=NULL){
+			// printf("not null\n");
+			// printf("%s par %s \n",x->lexeme,trv_node->lexeme);
+			// printf("%s\n",x->lexeme);
+			inorder_final(x);
+			x = x->sibling;
+		}
+
+	}
+}
 void get_only_token(char *x){
 	init_lexer(x);
 
@@ -482,6 +541,7 @@ void get_syntactic_errors(char* inp){
 	close_file_lexer();
 
 }
+
 void traverse_parse_tree(char *inp,char *outp){
 	init_lexer(inp);
 	init_grammar();
@@ -501,6 +561,27 @@ void traverse_parse_tree(char *inp,char *outp){
 	fprintf(outfile,"%25.25s %6s %25.25s %25.25s %25.25s %6.6s %25.25s\n","lexeme curnode" ,"lineno","token ","valifnum " ,"parent symbol ","isleaf","symbol name");
 	inorder(ptree);
 	close_file();
+}
+
+void traverse_parse_tree_final(char *inp){
+	init_lexer(inp);
+	init_grammar();
+
+	init_reverse_token_lookup_hash();
+
+	init_ptree_pstack();
+
+	parse();
+	close_file_lexer();
+
+	// printf("%s \n",ptree->child->child->sibling->sibling->sibling->lexeme);
+	// char * fname = ;
+	// FILE * fap ;
+	// fap=fopen("results1.txt",'w');
+	// init_file(outp);
+	printf("%25.25s %6s %25.25s %25.25s %25.25s %6.6s %25.25s\n","lexeme curnode" ,"lineno","token ","valifnum " ,"parent symbol ","isleaf","symbol name");
+	inorder_final(ptree);
+	// close_file();
 }
 	// reverse look up debugger
 // int main(){

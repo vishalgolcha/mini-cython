@@ -1,3 +1,7 @@
+///////////////////////////////////////
+// Author: Vishal Golcha 
+// Id: 2014B5A70717P
+///////////////////////////////////////
 #include "hash-helper.h"
 #include <stdio.h>
 #include <stdlib.h>

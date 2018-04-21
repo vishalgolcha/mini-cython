@@ -33,5 +33,7 @@ void populate_first_sets();
 void populate_follow_sets();
 void populate_parse_table();
 void init_grammar();
-
+void traverse_parse_tree_final(char *inp);
 extern tnode* ptree;
+extern int parse_tree_count;
+extern int suc_parse;

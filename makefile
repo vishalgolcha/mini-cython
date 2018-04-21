@@ -1,5 +1,8 @@
-symbol-table: symbol-table.c symboltable.h hash-helper.o ast.o hash-helper.c 
-	gcc symbol-table.c lex.o llh.o extgrm.o ptree.o ast.o hash-helper.o -o stout
+compiler: final_driver.c symbol-table.o hash-helper.o ast.o lex.o llh.o extgrm.o ptree.o driver.c
+	gcc final_driver.c symbol-table.o lex.o llh.o extgrm.o ptree.o ast.o hash-helper.o -o compiler
+
+symbol-table: symbol-table.c symboltable.h hash-helper.o ast.o hash-helper.c lex.o llh.o extgrm.o ptree.o
+	gcc -c symbol-table.c -o symbol-table.o
 	
 hash-helper.o: hash-helper.c hash-helper.h astDefs.h lex.o llh.o extgrm.o ptree.o
 	gcc -c hash-helper.c -o hash-helper.o
@@ -24,15 +27,5 @@ llh.o :ll-helper.c lexer.h lexerDef.h
 	gcc -c ll-helper.c -o llh.o
 
 clean :
-	rm *.o stage1exe
-test1 : compileAll
-	./stage1exe testcase1.txt result1.txt
-test2 : compileAll
-	./stage1exe testcase2.txt result2.txt
-test3 : compileAll
-	./stage1exe testcase3.txt result3.txt
-test4 : compileAll
-	./stage1exe testcase4.txt result4.txt
-test5 : compileAll
-	./stage1exe testcase5.txt result5.txt
+	rm *.o compiler
 
