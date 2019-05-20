@@ -1,4 +1,4 @@
-# mini-cython
+# DIY Compiler
 Cython like mini compiler for the Compilers Course Project
 ```makefile
 compiler: final_driver.c symbol-table.o hash-helper.o ast.o lex.o llh.o extgrm.o ptree.o driver.c
