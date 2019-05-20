@@ -1,6 +1,6 @@
 # mini-cython
-cython like mini compiler made in c for a course project
-
+Cython like mini compiler for the Compilers Course Project
+```makefile
 compiler: final_driver.c symbol-table.o hash-helper.o ast.o lex.o llh.o extgrm.o ptree.o driver.c
 	gcc final_driver.c symbol-table.o lex.o llh.o extgrm.o ptree.o ast.o hash-helper.o -o compiler
 
@@ -31,3 +31,4 @@ llh.o :ll-helper.c lexer.h lexerDef.h
 
 clean :
 rm *.o compiler
+```
